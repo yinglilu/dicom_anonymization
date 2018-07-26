@@ -15,7 +15,7 @@ import logging
 
 import pydicom
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO,format='%(asctime)s-%(levelname)s-%(filename)s-%(lineno)d-%(message)s',datefmt='%m/%d/%Y %I:%M:%S')
 
 # anonymized value
 string_anon = 'anon'
@@ -205,11 +205,17 @@ if __name__ == "__main__":
             full_filename = os.path.join(root_dir, filename)
             output_dir = os.path.dirname(full_filename).replace(
                 input_root_dir, output_root_dir)
-            try:
 
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            # anonymize and write new dicom file
+            try:
                 if not os.path.exists(output_dir):
                     os.makedirs(output_dir)
                 # anonymize and write new dicom file
                 anonymize(full_filename, output_dir)
+            except pydicom.errors.InvalidDicomError:
+                logging.info('{} is not a valide dicom file.'.format(full_filename))
             except Exception as e:
-                logging.error(e)
+                print(e)
+                #logging.error(e)
